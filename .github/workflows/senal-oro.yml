@@ -1,0 +1,26 @@
+name: Senal de trading oro
+
+on:
+  schedule:
+    - cron: '*/15 * * * 1-5'   # cada 15 min, lunes a viernes (hora UTC)
+  workflow_dispatch:            # permite correrlo manualmente desde la pestana Actions
+
+jobs:
+  correr-senal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - run: pip install -r requirements.txt
+
+      - name: Correr el modelo
+        env:
+          MARKETAUX_API_KEY: ${{ secrets.MARKETAUX_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python gold_trading_model.py --once
